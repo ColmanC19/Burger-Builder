@@ -5,10 +5,10 @@ import Aux from '../../../hoc/Aux';
 
 class Model extends Component {
     shouldComponentUpdate(nextProps, nextState) {
-        return (nextProps.show !== this.props.show)
+        return (nextProps.show !== this.props.show) || nextProps.children !== this.props.children;
     }
     componentDidUpdate () {
-        console.log('[Model] WillUpdate')
+        // console.log('[Model] WillUpdate')
     }
     render () {
         return (
