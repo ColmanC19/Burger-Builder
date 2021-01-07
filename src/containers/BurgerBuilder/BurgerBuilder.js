@@ -22,16 +22,18 @@ class BurgerBuilder extends Component {
     //     this.state = {...}
     // }
     state = {
-        ingredients: {
-            salad: 0,
-            bacon: 0,
-            cheese: 0,
-            meat: 0
-        },
+        ingredients: null,
         totalPrice: 4,
         purchasable: false,
         purchasing: false,
         loading: false
+    }
+
+    componentDidMount () {
+        axios.get('https://react-burger-builder-a5607-default-rtdb.firebaseio.com/ingredients.json')
+            .then(response => {
+                this.setState({ingredients: response.data})
+            })
     }
 
     updatePurchaseState (ingredients) {
@@ -120,29 +122,42 @@ class BurgerBuilder extends Component {
         for (let key in disabledInfo) {
             disabledInfo[key] = disabledInfo[key] <= 0
         }
-        let orderSummary = <OrderSummary 
-        ingredients={this.state.ingredients} 
-        price={this.state.totalPrice}
-        purchaseCancelled={this.purchaseCancelHandler}
-        purchaseContinued={this.purchaseContinueHandler}/>
         
-        if (this.state.loading) {
-            orderSummary = <Spinner />
-        }
-        return (
+        let orderSummary = null;
+        
+        let burger = <Spinner />
+
+        if (this.state.ingredients) {
+            burger = (
             <Aux>
-                <Model show={this.state.purchasing} modelClosed={this.purchaseCancelHandler}>
-                    {orderSummary}
-                </Model>
                 <Burger ingredients={this.state.ingredients} />
-                <BuildControls 
+                 <BuildControls 
                     ingredientAdded={this.addIngredientHandler}
                     ingredientRemoved ={this.removeIngredientHandler}
                     disabled={disabledInfo}
                     price={this.state.totalPrice}
                     purchasable={this.state.purchasable}
                     ordered={this.purchaseHandler}
-                    />
+                />
+            </Aux>
+            );
+            orderSummary = <OrderSummary 
+            ingredients={this.state.ingredients} 
+            price={this.state.totalPrice}
+            purchaseCancelled={this.purchaseCancelHandler}
+            purchaseContinued={this.purchaseContinueHandler}/>
+        }
+        if (this.state.loading) {
+            orderSummary = <Spinner />
+        }
+        
+        return (
+            <Aux>
+                <Model show={this.state.purchasing} modelClosed={this.purchaseCancelHandler}>
+                    {orderSummary}
+                </Model>
+                {burger}
+                
             </Aux>
         );
     }
